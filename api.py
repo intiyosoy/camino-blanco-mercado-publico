@@ -52,6 +52,8 @@ def request(kind, params=None, code=None, client=None):
         raise ValueError('ChileCompra no respondió; no se reemplazaron los datos guardados') from None
     if response.status_code == 429:
         raise ValueError('Cuota de ChileCompra agotada; detener consultas y respetar Retry-After')
+    if response.status_code in (500, 502, 503, 504):
+        raise ValueError('ChileCompra demoró demasiado o está temporalmente no disponible; reintentar con una página menor')
     if response.status_code != 200:
         raise ValueError(f'ChileCompra respondió HTTP {response.status_code}; revisar acceso o código')
     try:
@@ -62,8 +64,8 @@ def request(kind, params=None, code=None, client=None):
         raise ValueError('ChileCompra rechazó la consulta; revisar ticket y parámetros')
     return {'consultado_en': now(), 'fuente': url, 'datos': scrub(data)}
 
-def search_agile(query='', page=1, size=50, region=None):
-    if not 1 <= size <= 50 or page < 1 or region is not None and not 1 <= region <= 16:
+def search_agile(query='', page=1, size=10, region=None):
+    if not 10 <= size <= 50 or page < 1 or region is not None and not 1 <= region <= 16:
         raise ValueError('Página, tamaño o región inválidos')
     params = {'estado': 'publicada', 'numero_pagina': page, 'tamano_pagina': size, 'ordenar_por': 'FechaPublicacion'}
     if query:
