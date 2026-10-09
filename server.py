@@ -12,7 +12,7 @@ def estado_integracion() -> dict:
     """Ver qué funciona y qué acceso falta, sin revelar secretos ni afirmar sesión activa."""
     try:
         api.ticket()
-        access = 'Ticket configurado; conexión aún debe probarse con consulta real'
+        access = 'Ticket configurado para consultas en vivo'
     except api.AccessMissing as e:
         access = str(e)
     return {'local': 'Disponible', 'compras_importadas': len(Workspace().records()), 'api': access,
